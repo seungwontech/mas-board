@@ -5,7 +5,7 @@ import com.board.article.entity.Article;
 import java.time.LocalDateTime;
 
 public record ArticleRes(
-        Long article,
+        Long articleId,
         String title,
         String content,
         Long boardId,

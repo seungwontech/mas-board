@@ -1,6 +1,7 @@
 package com.board.article.entity;
 
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
@@ -19,12 +20,25 @@ import java.time.LocalDateTime;
 public class Article {
 
     @Id
+    @Column(name = "article_id")
     private Long articleId;
+
+    @Column(name = "title")
     private String title;
+
+    @Column(name = "content")
     private String content;
+
+    @Column(name = "board_id")
     private Long boardId;
+
+    @Column(name = "member_id")
     private Long memberId;
+
+    @Column(name = "created_at")
     private LocalDateTime createdAt;
+
+    @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
 

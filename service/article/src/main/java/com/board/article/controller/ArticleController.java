@@ -1,6 +1,7 @@
 package com.board.article.controller;
 
 import com.board.article.dto.ArticleCreateReq;
+import com.board.article.dto.ArticlePageRes;
 import com.board.article.dto.ArticleRes;
 import com.board.article.dto.ArticleUpdateReq;
 import com.board.article.service.ArticleService;
@@ -17,6 +18,14 @@ public class ArticleController {
     @GetMapping("/v1/articles/{articleId}")
     public ResponseEntity<ArticleRes> getArticle(@PathVariable Long articleId){
         return ResponseEntity.ok(articleService.read(articleId));
+    }
+
+    @GetMapping("/v1/articles")
+    public ResponseEntity<ArticlePageRes> getArticles(
+            @RequestParam("boardId") Long boardId,
+            @RequestParam("page") Long page,
+            @RequestParam("pageSize") Long pageSize) {
+        return ResponseEntity.ok(articleService.readAll(boardId, page, pageSize));
     }
 
     @PostMapping("/v1/articles")
