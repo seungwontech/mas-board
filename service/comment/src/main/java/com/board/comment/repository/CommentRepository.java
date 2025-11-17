@@ -23,7 +23,7 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
 
     @Query(
             value = "select comment.comment_id, comment.content, comment.parent_comment_id, comment.article_id, " +
-                    "comment.member_id, comment.deleted, comment.created_at " +
+                    "comment.member_id, comment.deleted, comment.created_at, comment.updated_at " +
                     "from (" +
                     "   select comment_id from comment where article_id = :articleId " +
                     "   order by parent_comment_id asc, comment_id asc " +
