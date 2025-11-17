@@ -4,15 +4,15 @@ server:
 
 spring:
   application:
-    name: board-article
+    name: board-article-service
   datasource:
-    url: jdbc:mariadb://localhost:43306/board?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Seoul
+    url: jdbc:mariadb://localhost:43306/article?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Seoul
     username: root
     password: root
     driver-class-name: org.mariadb.jdbc.Driver
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: create
     show-sql: false
     properties:
       hibernate:
