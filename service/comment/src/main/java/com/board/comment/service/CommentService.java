@@ -64,7 +64,7 @@ public class CommentService {
         Comment comment = commentOptional.get();
         if(!comment.getDeleted()) {
             if(hasChildren(comment)) {
-                comment.deleted();
+                comment.delete();
             } else {
                 cascadeDelete(comment);
             }

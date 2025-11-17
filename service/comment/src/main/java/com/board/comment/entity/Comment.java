@@ -55,7 +55,7 @@ public class Comment {
         return parentCommentId.longValue() == commentId;
     }
 
-    public void deleted() {
+    public void delete() {
         deleted = true;
     }
 
