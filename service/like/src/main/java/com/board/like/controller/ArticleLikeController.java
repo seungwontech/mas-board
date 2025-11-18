@@ -28,9 +28,22 @@ public class ArticleLikeController {
         return ResponseEntity.noContent().build();
     }
 
-    @PostMapping("/v1/article-likes/articles/{articleId}/members/{memberId}/unlike")
+    @DeleteMapping("/v1/article-likes/articles/{articleId}/members/{memberId}/unlike")
     public ResponseEntity<Void> unlike(@PathVariable Long articleId, @PathVariable Long memberId){
         articleLikeService.unlike(articleId, memberId);
         return ResponseEntity.noContent().build();
     }
+
+    @PostMapping("/v1/article-likes/articles/{articleId}/members/{memberId}/like-pess")
+    public ResponseEntity<Void> likePessimisticLock(@PathVariable Long articleId, @PathVariable Long memberId){
+        articleLikeService.likePessimisticLock(articleId, memberId);
+        return ResponseEntity.noContent().build();
+    }
+
+    @DeleteMapping("/v1/article-likes/articles/{articleId}/members/{memberId}/unlike-pess")
+    public ResponseEntity<Void> unlikePessimisticLock(@PathVariable Long articleId, @PathVariable Long memberId){
+        articleLikeService.unlikePessimisticLock(articleId, memberId);
+        return ResponseEntity.noContent().build();
+    }
+
 }
