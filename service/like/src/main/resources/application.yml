@@ -1,2 +1,21 @@
 server:
   port: 9005
+
+
+spring:
+  application:
+    name: board-article-like-service
+  datasource:
+    url: jdbc:mariadb://localhost:43306/article_like?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Seoul
+    username: root
+    password: root
+    driver-class-name: org.mariadb.jdbc.Driver
+  jpa:
+    hibernate:
+      ddl-auto: create
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: true
+        physical_naming_strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+    database-platform: org.hibernate.dialect.MariaDBDialect
