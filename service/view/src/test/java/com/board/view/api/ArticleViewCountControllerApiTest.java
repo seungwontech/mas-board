@@ -1,4 +1,4 @@
-package com.board.view.controller;
+package com.board.view.api;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.web.client.RestClient;
@@ -8,7 +8,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 
-class ArticleViewCountControllerTest {
+class ArticleViewCountControllerApiTest {
 
     RestClient restClient = RestClient.create("http://localhost:9006");
 
