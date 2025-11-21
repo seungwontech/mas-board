@@ -18,5 +18,16 @@ services:
       --character-set-server=utf8mb4
       --collation-server=utf8mb4_general_ci
       --lower_case_table_names=0
+  redis:
+    image: redis:7-alpine
+    container_name: redis-board
+    restart: always
+    ports:
+      - "46379:6379"
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - redis_board_data:/data
+
 volumes:
   mariadb_board_data:
+  redis_board_data:
