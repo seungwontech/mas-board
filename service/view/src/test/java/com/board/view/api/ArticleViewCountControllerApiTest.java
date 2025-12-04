@@ -19,7 +19,7 @@ class ArticleViewCountControllerApiTest {
 
         for (int i = 0; i < 10000; i++) {
             executorService.submit(() -> {
-                restClient.post().uri("/v1/article-views/articles/{articleId}/users/{userId}", 3L,1L)
+                restClient.post().uri("/v1/article-views/articles/{articleId}/members/{memberId}", 3L,1L)
                         .retrieve()
                         .toBodilessEntity();
                 countDownLatch.countDown();

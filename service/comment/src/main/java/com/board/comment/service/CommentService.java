@@ -3,8 +3,14 @@ package com.board.comment.service;
 import com.board.comment.dto.CommentCreateReq;
 import com.board.comment.dto.CommentPageRes;
 import com.board.comment.dto.CommentRes;
+import com.board.comment.entity.ArticleCommentCount;
 import com.board.comment.entity.Comment;
+import com.board.comment.repository.ArticleCommentCountRepository;
 import com.board.comment.repository.CommentRepository;
+import com.board.common.event.EventType;
+import com.board.common.event.payload.CommentCreatedEventPayload;
+import com.board.common.event.payload.CommentDeletedEventPayload;
+import com.board.common.outboxmessagerelay.OutboxEventPublisher;
 import com.board.common.snowflake.Snowflake;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -18,6 +24,8 @@ import java.util.Optional;
 public class CommentService {
     private final Snowflake snowflake = new Snowflake();
     private final CommentRepository commentRepository;
+    private final ArticleCommentCountRepository articleCommentCountRepository;
+    private final OutboxEventPublisher outboxEventPublisher;
 
     @Transactional
     public CommentRes create(CommentCreateReq request) {
@@ -45,6 +53,27 @@ public class CommentService {
                 request.articleId()
         );
         Comment comment = commentRepository.save(createComment);
+
+        int result = articleCommentCountRepository.increase(request.articleId());
+        if(result == 0) {
+            articleCommentCountRepository.save(
+                    ArticleCommentCount.init(request.articleId(), 1L)
+            );
+        }
+
+        outboxEventPublisher.publish(
+                EventType.COMMENT_CREATED,
+                CommentCreatedEventPayload.builder()
+                        .commentId(comment.getCommentId())
+                        .content(comment.getContent())
+                        .articleId(comment.getArticleId())
+                        .memberId(comment.getMemberId())
+                        .deleted(comment.getDeleted())
+                        .createdAt(comment.getCreatedAt())
+                        .articleCommentCount(count(comment.getArticleId()))
+                        .build(),
+                comment.getArticleId()
+        );
         return CommentRes.from(comment);
     }
 
@@ -68,11 +97,26 @@ public class CommentService {
             } else {
                 cascadeDelete(comment);
             }
+
+            outboxEventPublisher.publish(
+                    EventType.COMMENT_DELETED,
+                    CommentDeletedEventPayload.builder()
+                            .commentId(comment.getCommentId())
+                            .content(comment.getContent())
+                            .articleId(comment.getArticleId())
+                            .memberId(comment.getMemberId())
+                            .deleted(comment.getDeleted())
+                            .createdAt(comment.getCreatedAt())
+                            .articleCommentCount(count(comment.getArticleId()))
+                            .build(),
+                    comment.getArticleId()
+            );
         }
     }
 
     private void cascadeDelete(Comment comment) {
         commentRepository.delete(comment);
+        articleCommentCountRepository.decrease(comment.getArticleId());
         if(!comment.isRoot()) {
 
             Optional<Comment> parentOptional = commentRepository.findById(comment.getParentCommentId());
@@ -96,6 +140,13 @@ public class CommentService {
         Long commentCount = commentRepository.count(articleId, PageLimitCalculator.calculatePageLimit(page, pageSize, 10L));
 
         return CommentPageRes.of(comments.stream().map(CommentRes::from).toList(), commentCount);
+    }
+
+
+    public Long count(Long articleId) {
+        return articleCommentCountRepository.findById(articleId)
+                .map(ArticleCommentCount::getCommentCount)
+                .orElse(0L);
     }
 
 }

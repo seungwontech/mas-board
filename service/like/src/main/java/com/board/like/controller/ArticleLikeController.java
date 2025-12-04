@@ -24,6 +24,7 @@ public class ArticleLikeController {
 
     @PostMapping("/v1/article-likes/articles/{articleId}/members/{memberId}/like/nopess")
     public ResponseEntity<Void> like(@PathVariable Long articleId, @PathVariable Long memberId){
+        System.out.println("------------------------------");
         articleLikeService.like(articleId, memberId);
         return ResponseEntity.noContent().build();
     }

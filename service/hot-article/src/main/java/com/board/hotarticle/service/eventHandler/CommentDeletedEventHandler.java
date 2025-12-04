@@ -1,6 +1,7 @@
 package com.board.hotarticle.service.eventHandler;
 
 import com.board.common.event.Event;
+import com.board.common.event.EventPayload;
 import com.board.common.event.EventType;
 import com.board.common.event.payload.CommentDeletedEventPayload;
 import com.board.hotarticle.repository.ArticleCommentCountRedisRepository;
@@ -10,12 +11,12 @@ import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
-public class CommentDeletedEventHandler implements EventHandler<CommentDeletedEventPayload> {
+public class CommentDeletedEventHandler implements EventHandler {
     private final ArticleCommentCountRedisRepository articleCommentCountRepository;
 
     @Override
-    public void handle(Event<CommentDeletedEventPayload> event) {
-        CommentDeletedEventPayload payload = event.getPayload();
+    public void handle(Event<? extends EventPayload> event) {
+        CommentDeletedEventPayload payload = (CommentDeletedEventPayload) event.getPayload();
         articleCommentCountRepository.createOrUpdate(
                 payload.getArticleId(),
                 payload.getArticleCommentCount(),
@@ -24,12 +25,13 @@ public class CommentDeletedEventHandler implements EventHandler<CommentDeletedEv
     }
 
     @Override
-    public boolean supports(Event<CommentDeletedEventPayload> event) {
+    public boolean supports(Event<? extends EventPayload> event) {
         return EventType.COMMENT_DELETED == event.getType();
     }
 
     @Override
-    public Long findArticleId(Event<CommentDeletedEventPayload> event) {
-        return event.getPayload().getArticleId();
+    public Long findArticleId(Event<? extends EventPayload> event) {
+        CommentDeletedEventPayload payload = (CommentDeletedEventPayload) event.getPayload();
+        return payload.getArticleId();
     }
 }

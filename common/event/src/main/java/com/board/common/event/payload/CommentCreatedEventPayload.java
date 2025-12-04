@@ -17,7 +17,7 @@ public class CommentCreatedEventPayload implements EventPayload {
     private String content;
     private String path;
     private Long articleId;
-    private Long writerId;
+    private Long memberId;
     private Boolean deleted;
     private LocalDateTime createdAt;
     private Long articleCommentCount;

@@ -2,6 +2,7 @@ package com.board.hotarticle.service.eventHandler;
 
 
 import com.board.common.event.Event;
+import com.board.common.event.EventPayload;
 import com.board.common.event.EventType;
 import com.board.common.event.payload.ArticleCreatedEventPayload;
 import com.board.hotarticle.repository.ArticleCreatedTimeRedisRepository;
@@ -11,11 +12,11 @@ import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
-public class ArticleCreatedEventHandler implements EventHandler<ArticleCreatedEventPayload> {
+public class ArticleCreatedEventHandler implements EventHandler {
 private final ArticleCreatedTimeRedisRepository articleCreatedTimeRedisRepository;
     @Override
-    public void handle(Event<ArticleCreatedEventPayload> event) {
-        ArticleCreatedEventPayload payload = event.getPayload();
+    public void handle(Event<? extends EventPayload>  event) {
+        ArticleCreatedEventPayload payload = (ArticleCreatedEventPayload) event.getPayload();
         articleCreatedTimeRedisRepository.createOrUpdate(
                 payload.getArticleId(),
                 payload.getCreatedAt(),
@@ -25,12 +26,13 @@ private final ArticleCreatedTimeRedisRepository articleCreatedTimeRedisRepositor
     }
 
     @Override
-    public boolean supports(Event<ArticleCreatedEventPayload> event) {
+    public boolean supports(Event<? extends EventPayload>  event) {
         return EventType.ARTICLE_CREATED == event.getType();
     }
 
     @Override
-    public Long findArticleId(Event<ArticleCreatedEventPayload> event) {
-        return event.getPayload().getArticleId();
+    public Long findArticleId(Event<? extends EventPayload>  event) {
+        ArticleCreatedEventPayload payload = (ArticleCreatedEventPayload) event.getPayload();
+        return payload.getArticleId();
     }
 }

@@ -22,10 +22,10 @@ public class HotArticleScoreUpdaterService {
     private static final long HOT_ARTICLE_COUNT = 10;
     private static final Duration HOT_ARTICLE_TTL = Duration.ofDays(5);
 
-    public void update(Event<EventPayload> event, EventHandler<EventPayload> eventHandler) {
+    public void update(Event<EventPayload> event, EventHandler eventHandler) {
         Long articleId = eventHandler.findArticleId(event);
         LocalDateTime createdTime = articleCreatedTimeRedisRepository.read(articleId);
-
+        System.out.println("_____________________________________"+createdTime);
         if (!isArticleCreatedToday(createdTime)) {
             return;
         }

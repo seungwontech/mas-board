@@ -14,13 +14,13 @@ public class ArticleViewDistributedLockRepository {
     private static final String KEY_FORMAT = "view::article::%s::user::%s::lock";
 
 
-    public boolean lock(Long articleId, Long userId, Duration ttl) {
-        String key = generateKey(articleId, userId);
+    public boolean lock(Long articleId, Long memberId, Duration ttl) {
+        String key = generateKey(articleId, memberId);
         return Boolean.TRUE.equals(redisTemplate.opsForValue().setIfAbsent(key, "", ttl));
     }
 
-    private String generateKey(Long articleId, Long userId) {
-        return KEY_FORMAT.formatted(articleId, userId);
+    private String generateKey(Long articleId, Long memberId) {
+        return KEY_FORMAT.formatted(articleId, memberId);
     }
 
 }

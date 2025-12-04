@@ -2,6 +2,7 @@ package com.board.hotarticle.service.eventHandler;
 
 
 import com.board.common.event.Event;
+import com.board.common.event.EventPayload;
 import com.board.common.event.EventType;
 import com.board.common.event.payload.ArticleUnlikedEventPayload;
 import com.board.hotarticle.repository.ArticleLikeCountRedisRepository;
@@ -11,12 +12,12 @@ import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
-public class ArticleUnlikedEventHandler implements EventHandler<ArticleUnlikedEventPayload> {
+public class ArticleUnlikedEventHandler implements EventHandler {
     private final ArticleLikeCountRedisRepository articleLikeCountRepository;
 
     @Override
-    public void handle(Event<ArticleUnlikedEventPayload> event) {
-        ArticleUnlikedEventPayload payload = event.getPayload();
+    public void handle(Event<? extends EventPayload> event) {
+        ArticleUnlikedEventPayload payload = (ArticleUnlikedEventPayload) event.getPayload();
         articleLikeCountRepository.createOrUpdate(
                 payload.getArticleId(),
                 payload.getArticleLikeCount(),
@@ -25,12 +26,13 @@ public class ArticleUnlikedEventHandler implements EventHandler<ArticleUnlikedEv
     }
 
     @Override
-    public boolean supports(Event<ArticleUnlikedEventPayload> event) {
+    public boolean supports(Event<? extends EventPayload> event) {
         return EventType.ARTICLE_UNLIKED == event.getType();
     }
 
     @Override
-    public Long findArticleId(Event<ArticleUnlikedEventPayload> event) {
-        return event.getPayload().getArticleId();
+    public Long findArticleId(Event<? extends EventPayload> event) {
+        ArticleUnlikedEventPayload payload = (ArticleUnlikedEventPayload) event.getPayload();
+        return payload.getArticleId();
     }
 }

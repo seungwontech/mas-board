@@ -66,9 +66,9 @@ public class ArticleLikeApiTest {
 
         long start = System.nanoTime();
         for(int i=0; i < 3000; i++) {
-            long userId = i + 2;
+            long memberId = i + 2;
             executorService.submit(() -> {
-                like(articleId, userId, lockType);
+                like(articleId, memberId, lockType);
                 latch.countDown();
             });
         }

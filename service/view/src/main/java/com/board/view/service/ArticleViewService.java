@@ -19,9 +19,9 @@ public class ArticleViewService {
     private static final int BACK_UP_BACH_SIZE = 100;
     private static final Duration TTL = Duration.ofMinutes(10); // 10분
 
-    public Long increase(Long articleId, Long userId) {
+    public Long increase(Long articleId, Long memberId) {
 
-        if(!articleViewDistributedLockRepository.lock(articleId, userId, TTL)) {
+        if(!articleViewDistributedLockRepository.lock(articleId, memberId, TTL)) {
             return articleViewCountRepository.read(articleId);
         }
 

@@ -3,9 +3,11 @@ package com.board.hotarticle.service.eventHandler;
 import com.board.common.event.Event;
 import com.board.common.event.EventPayload;
 
-public interface EventHandler<T extends EventPayload> {
+public interface EventHandler {
 
-    void handle(Event<T> event);
-    boolean supports(Event<T> event);
-    Long findArticleId(Event<T> event);
+    boolean supports(Event<? extends EventPayload> event);
+
+    void handle(Event<? extends EventPayload> event);
+
+    Long findArticleId(Event<? extends EventPayload> event);
 }

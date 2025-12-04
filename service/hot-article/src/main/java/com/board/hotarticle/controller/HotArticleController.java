@@ -18,6 +18,7 @@ public class HotArticleController {
 
     @GetMapping("/v1/hot-articles/articles/date/{dataStr}")
     public ResponseEntity<List<HotArticleRes>> readAll(@PathVariable("dataStr") String dataStr) {
+        System.out.println(dataStr);
         return ResponseEntity.ok(hotArticleService.readAll(dataStr));
     }
 }

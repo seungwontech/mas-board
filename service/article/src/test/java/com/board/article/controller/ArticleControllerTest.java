@@ -1,5 +1,6 @@
 package com.board.article.controller;
 
+import com.board.article.dto.ArticleCreateReq;
 import com.board.article.dto.ArticlePageRes;
 import com.board.article.dto.ArticleRes;
 import org.junit.jupiter.api.Test;
@@ -21,4 +22,20 @@ class ArticleControllerTest {
             System.out.println("articleId = " + article.articleId());
         }
     }
+
+    @Test
+    void createTest() {
+        ArticleRes response = create(new ArticleCreateReq(
+                "hi", "my content", 1L, 1L
+        ));
+        System.out.println("response = " + response);
+    }
+    ArticleRes create(ArticleCreateReq request) {
+        return restClient.post()
+                .uri("/v1/articles")
+                .body(request)
+                .retrieve()
+                .body(ArticleRes.class);
+    }
+
 }

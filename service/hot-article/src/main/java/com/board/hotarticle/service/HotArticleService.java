@@ -18,24 +18,34 @@ import java.util.Objects;
 public class HotArticleService {
 
     private final ArticleClient articleClient;
-    private final List<EventHandler<EventPayload>> eventHandlers;
+    private final List<EventHandler> eventHandlers;
     private final HotArticleScoreUpdaterService hotArticleScoreUpdaterService;
     private final HotArticleRedisRepository hotArticleRedisRepository;
 
 
     public void handleEvent(Event<EventPayload> event) {
-        EventHandler<EventPayload> eventHandler = findEventHandler(event);
 
-        if (eventHandler == null) return;
+        System.out.println("🔥 [HotArticleService] event=" + event.getType());
+
+        EventHandler eventHandler = findEventHandler(event);
+
+        if (eventHandler == null) {
+            System.out.println("🔥 [HotArticleService] no handler found. skip.");
+            return;
+        }
 
         if (isArticleCreatedOrDeleted(event)) {
+            System.out.println("🔥 [HotArticleService] ARTICLE_CREATED/DELETED. just handle.");
+
             eventHandler.handle(event);
         } else {
+            System.out.println("🔥 [HotArticleService] update score.");
+
             hotArticleScoreUpdaterService.update(event, eventHandler);
         }
     }
 
-    private EventHandler<EventPayload> findEventHandler(Event<EventPayload> event) {
+    private EventHandler findEventHandler(Event<EventPayload> event) {
         return eventHandlers.stream()
                 .filter(eventHandler -> eventHandler.supports(event))
                 .findAny().orElse(null);

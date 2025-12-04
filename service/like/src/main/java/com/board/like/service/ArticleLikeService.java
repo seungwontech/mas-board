@@ -1,5 +1,9 @@
 package com.board.like.service;
 
+import com.board.common.event.EventType;
+import com.board.common.event.payload.ArticleLikedEventPayload;
+import com.board.common.event.payload.ArticleUnlikedEventPayload;
+import com.board.common.outboxmessagerelay.OutboxEventPublisher;
 import com.board.common.snowflake.Snowflake;
 import com.board.like.dto.ArticleLikeRes;
 import com.board.like.entity.ArticleLike;
@@ -17,7 +21,7 @@ public class ArticleLikeService {
     Snowflake snowflake = new Snowflake();
 
     private final ArticleLikeRepository articleLikeRepository;
-
+    private final OutboxEventPublisher outboxEventPublisher;
     private final ArticleLikeCountRepository articleLikeCountRepository;
 
 
@@ -28,14 +32,27 @@ public class ArticleLikeService {
 
     @Transactional
     public void like(Long articleId, Long memberId) {
-        ArticleLike createLike = ArticleLike.create(snowflake.nextId(), articleId, memberId);
-        articleLikeRepository.save(createLike);
+        ArticleLike articleLike = articleLikeRepository.save(
+                ArticleLike.create(snowflake.nextId(), articleId, memberId)
+        );
 
         int result = articleLikeCountRepository.increase(articleId);
         if (result == 0) {
             ArticleLikeCount init = ArticleLikeCount.init(articleId, 1L);
             articleLikeCountRepository.save(init);
         }
+
+        outboxEventPublisher.publish(
+                EventType.ARTICLE_LIKED,
+                ArticleLikedEventPayload.builder()
+                        .articleLikeId(articleLike.getArticleLikeId())
+                        .articleId(articleLike.getArticleId())
+                        .memberId(articleLike.getMemberId())
+                        .createdAt(articleLike.getCreatedAt())
+                        .articleLikeCount(count(articleLike.getArticleId()))
+                        .build(),
+                articleLike.getArticleId()
+        );
     }
 
     @Transactional
@@ -44,6 +61,17 @@ public class ArticleLikeService {
                 .ifPresent(articleLike -> {
                     articleLikeRepository.delete(articleLike);
                     articleLikeCountRepository.decrease(articleId);
+                    outboxEventPublisher.publish(
+                            EventType.ARTICLE_UNLIKED,
+                            ArticleUnlikedEventPayload.builder()
+                                    .articleLikeId(articleLike.getArticleLikeId())
+                                    .articleId(articleLike.getArticleId())
+                                    .memberId(articleLike.getMemberId())
+                                    .createdAt(articleLike.getCreatedAt())
+                                    .articleLikeCount(count(articleLike.getArticleId()))
+                                    .build(),
+                            articleLike.getArticleId()
+                    );
                 });
     }
 

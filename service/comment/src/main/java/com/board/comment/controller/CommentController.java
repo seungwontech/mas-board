@@ -31,6 +31,7 @@ public class CommentController {
 
     @PostMapping("/v1/comments")
     public ResponseEntity<CommentRes> create(@RequestBody CommentCreateReq request) {
+        System.out.println("hihi");
         return ResponseEntity.ok(commentService.create(request));
     }
 
