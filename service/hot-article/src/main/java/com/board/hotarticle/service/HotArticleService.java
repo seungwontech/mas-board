@@ -24,23 +24,14 @@ public class HotArticleService {
 
 
     public void handleEvent(Event<EventPayload> event) {
-
-        System.out.println("🔥 [HotArticleService] event=" + event.getType());
-
         EventHandler eventHandler = findEventHandler(event);
-
         if (eventHandler == null) {
-            System.out.println("🔥 [HotArticleService] no handler found. skip.");
             return;
         }
 
         if (isArticleCreatedOrDeleted(event)) {
-            System.out.println("🔥 [HotArticleService] ARTICLE_CREATED/DELETED. just handle.");
-
             eventHandler.handle(event);
         } else {
-            System.out.println("🔥 [HotArticleService] update score.");
-
             hotArticleScoreUpdaterService.update(event, eventHandler);
         }
     }
