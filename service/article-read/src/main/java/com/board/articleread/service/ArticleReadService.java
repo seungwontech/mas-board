@@ -4,9 +4,12 @@ import com.board.articleread.client.ArticleClient;
 import com.board.articleread.client.CommentClient;
 import com.board.articleread.client.LikeClient;
 import com.board.articleread.client.ViewClient;
+import com.board.articleread.repository.ArticleIdListRepository;
 import com.board.articleread.repository.ArticleQueryModel;
 import com.board.articleread.repository.ArticleQueryModelRepository;
+import com.board.articleread.repository.BoardArticleCountRepository;
 import com.board.articleread.service.eventhandler.EventHandler;
+import com.board.articleread.service.response.ArticleReadPageResponse;
 import com.board.articleread.service.response.ArticleReadResponse;
 import com.board.common.event.Event;
 import com.board.common.event.EventPayload;
@@ -16,6 +19,8 @@ import org.springframework.stereotype.Service;
 
 import java.time.Duration;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 
 @Slf4j
@@ -29,6 +34,10 @@ public class ArticleReadService {
     private final ViewClient viewClient;
 
     private final ArticleQueryModelRepository articleQueryModelRepository;
+
+    private final ArticleIdListRepository articleIdListRepository;
+    private final BoardArticleCountRepository boardArticleCountRepository;
+
 
     private final List<EventHandler> eventHandlers;
 
@@ -66,7 +75,51 @@ public class ArticleReadService {
         return articleQueryModelOptional;
     }
 
+    public ArticleReadPageResponse readAll(Long boardId, Long page, Long pageSize) {
+        return ArticleReadPageResponse.of(
+                readAll(
+                        readAllArticleIds(boardId, page, pageSize)
+                ),
+                count(boardId)
+        );
+    }
 
+    private List<ArticleReadResponse> readAll(List<Long> articleIds) {
+        Map<Long, ArticleQueryModel> articleQueryModelMap = articleQueryModelRepository.readAll(articleIds);
+        return articleIds.stream()
+                .map(articleId -> articleQueryModelMap.containsKey(articleId) ?
+                        articleQueryModelMap.get(articleId) :
+                        fetch(articleId).orElse(null))
+                .filter(Objects::nonNull)
+                .map(articleQueryModel ->
+                        ArticleReadResponse.from(
+                                articleQueryModel,
+                                viewClient.count(articleQueryModel.getArticleId())
+                        ))
+                .toList();
+    }
+
+    private List<Long> readAllArticleIds(Long boardId, Long page, Long pageSize) {
+        List<Long> articleIds = articleIdListRepository.readAll(boardId, (page - 1) * pageSize, pageSize);
+
+        if(pageSize == articleIds.size()) {
+            return articleIds;
+        }
+
+        return articleClient.readAll(boardId, page, pageSize).getArticles().stream()
+                .map(ArticleClient.ArticleResponse::getArticleId)
+                .toList();
+    }
+
+    private long count(Long boardId) {
+        Long result = boardArticleCountRepository.read(boardId);
+        if (result != null) {
+            return result;
+        }
+        long count = articleClient.count(boardId);
+        boardArticleCountRepository.createOrUpdate(boardId, count);
+        return count;
+    }
 }
 
 

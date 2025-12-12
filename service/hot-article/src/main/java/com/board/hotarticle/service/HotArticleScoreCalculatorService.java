@@ -5,7 +5,6 @@ import com.board.hotarticle.repository.ArticleLikeCountRedisRepository;
 import com.board.hotarticle.repository.ArticleViewCountRedisRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Service;
 
 @RequiredArgsConstructor
 @Component
